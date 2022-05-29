@@ -1,7 +1,8 @@
 package ca.bc.gov.bcdata.boats;
 
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,29 +21,30 @@ public class Main {
     SpringApplication.run(Main.class, args);
   }
 
-  private Queue<String> boats = new LinkedBlockingQueue<>();
+  private Map<Long, Boat> boats = new ConcurrentHashMap<>();
 
   @GetMapping("/boats")
-  ResponseEntity<Queue<String>> getBoats() {
-    return getBoatsResponse();
+  ResponseEntity<Collection<Boat>> getBoats() {
+    return buildOkResponseWithCorsHeader().body(boats.values());
   }
 
   @PostMapping("/boat") 
-  ResponseEntity<Queue<String>> addBoat(@RequestBody String boat) {
-    if (boat == null || boat.isEmpty()) {
+  ResponseEntity<Boat> addBoat(@RequestBody Boat boat) {
+    if (boat == null) {
       throw new RuntimeException("The value of 'boat' is empty.");
     }
-    boats.add(boat);
-    return getBoatsResponse();
+    // TODO more validation, tests
+    boats.put(boat.getId(), boat);
+    return buildOkResponseWithCorsHeader().body(boat);
   }
 
   @DeleteMapping("/boats")
-  ResponseEntity<Queue<String>> clearBoats() {
+  ResponseEntity<String> clearBoats() {
     boats.clear();
-    return getBoatsResponse();
+    return buildOkResponseWithCorsHeader().body("cleared!");
   }
 
-  private ResponseEntity<Queue<String>> getBoatsResponse() {
-    return ResponseEntity.ok().header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*").body(boats);
+  private ResponseEntity.BodyBuilder buildOkResponseWithCorsHeader() {
+    return ResponseEntity.ok().header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
   }
 }
