@@ -13,15 +13,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @SpringBootApplication
+@RestController
 public class Main {
-
-  private Queue<String> boats = new LinkedBlockingQueue<>();
-
   public static void main(String[] args) throws Exception {
     SpringApplication.run(Main.class, args);
   }
+
+  private Queue<String> boats = new LinkedBlockingQueue<>();
 
   @GetMapping("/boats")
   ResponseEntity<Queue<String>> getBoats() {
